@@ -1,8 +1,5 @@
 import { Request, Response } from 'express'
-import {
-  CreateProductInput,
-  UpdateProductInput,
-} from '../schema/product'
+import { CreateProductInput, UpdateProductInput } from '../schema/product'
 import {
   createProduct,
   deleteProduct,
@@ -10,6 +7,7 @@ import {
   findProduct,
 } from '../service/product'
 
+const pageNum = 7
 export async function createProductHandler(
   req: Request<{}, {}, CreateProductInput['body']>,
   res: Response
@@ -51,6 +49,14 @@ export async function getProductHandler(
     return res.sendStatus(404)
   }
   return res.send(product)
+}
+
+export async function getProductsHandler(req: Request, res: Response) {
+  const page = parseInt(req.query.page as string) || 1
+  const limit = parseInt(req.query.limit as string) || pageNum
+  const skip = (page - 1) * limit
+  const products = await findProduct({ limit, skip })
+  return res.send(products)
 }
 
 export async function deleteProductHandler(
